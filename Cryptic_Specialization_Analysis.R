@@ -7,7 +7,7 @@
 
 # Environment 
 set.seed(600)
-setwd('~/Desktop/GITHUB/TL_Trans/')
+setwd('~/Desktop/GITHUB/Pub-Cryptic-Specialization/')
 
 # Libraries
 library(tidyverse)
@@ -31,12 +31,12 @@ library(scales)       # scale_y_continuous
 # Data setup  -------------------------------------------------------------
 
 # raw data files 
-raw <- read.csv('TL_Trans_Results.csv')
-PAM <- read.csv('PAM/TL_TRANS_PAM_Aug04_13.csv')
-surv <- read.csv('Survival/TL_Trans_Survival_KP_Format.csv')
-temp_DO <- read.csv('Meta_Environmental_Data/TLPR21_Temp_DO_Raw.csv') 
-light_shallow <- read.csv('Meta_Environmental_Data/LIGHT_SHALLOW_ALL.csv') #%>% select(!c(SENSOR, old_date))
-light_deep <- read.csv('Meta_Environmental_Data/LIGHT_DEEP_ALL.csv') #%>% select(!c(SENSOR, old_date))
+raw <- read.csv('DATA/Cryptic_Specialization_Results.csv')
+PAM <- read.csv('DATA/Cryptic_specialization_PAM.csv')
+surv <- read.csv('DATA/Cryptic_Specialization_Survival_KP.csv')
+temp_DO <- read.csv('DATA/PR_Environmental_Temp_DO.csv') 
+light_shallow <- read.csv('DATA/PR_Environmental_Light_Shallow.csv') #%>% select(!c(SENSOR, old_date))
+light_deep <- read.csv('DATA/PR_Environmental_Light_Deep.csv') #%>% select(!c(SENSOR, old_date))
 
 # find mean of raw by genotype 
 raw <- raw %>%
@@ -110,7 +110,7 @@ blank <- ggplot(raw, aes(x=final, y = D2, fill = home_away)) +
         )
 
 blank
-ggsave("TL_TRANS_blank.jpg", plot = blank, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 5, height = 5)
+ggsave("FigX_legend.jpg", plot = blank, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 5, height = 5)
 
 # create custom color pallette 
 custom_colors <- c("Home" = "#A3A3D9", "Away" = "#FF6347")  # Adjust as needed
@@ -155,7 +155,8 @@ ggplot(light, aes(x=datetime, y=LightRaw, color = depth)) + geom_point()
 enviro_merged <- merge(light, temp_DO, all=TRUE) %>%
   select(datetime, date, time, depth, LightRaw, DO_mg.L, Temp_C)
 
-write_csv(enviro_merged, '~/Desktop/GitHub/TLPR21/Meta_Environmental_Data/TL_TRANS_Enviro_all_UPDATE.csv')
+# save merged & cleaned data if needed 
+# write_csv(enviro_merged, '~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/Enviro_data.csv')
 
 # include only times 1hr before and after sunrise (6am) and set (7pm)
 
@@ -169,7 +170,7 @@ ggplot(enviro_merged, aes(x=time, y=daylight)) + geom_point()
 
 # Daily Means Graphs
 
-#merged <- read.csv('~/Desktop/GITHUB/TLPR21/Meta_Environmental_Data/TL_TRANS_Enviro_all.csv') 
+#merged <- read.csv('~/Desktop/GITHUB/TLPR21/Meta_Environmental_Data/Enviro_all.csv') 
 #merged$datetime <- as.POSIXct(merged$datetime, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
 
 # daily means 
@@ -259,7 +260,7 @@ enviro_arrange <- plot_grid(enviro_temp, enviro_light, enviro_DO,
                       labels = c("A", "B", "C"),  label_size = 35, label_x = 0.11, label_y = 0.99)
 enviro_arrange
 
-ggsave("TL_TRANS_Enviro_Arrange.jpg", plot = enviro_arrange, path = '~/Desktop/TL_TRANS_Manuscript/Graphs/', width = 15, height = 25)
+ggsave("Fig2_Environmental_Data.jpg", plot = enviro_arrange, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 15, height = 25)
 
 # Compare shallow and deep means: 
 merged_longer <- enviro_merged %>%
@@ -273,7 +274,7 @@ ggplot(merged_longer, aes(x=depth, y=value)) +
 enviro_means <- merged_longer %>%
   group_by(depth, measurement) %>%
   summarise(mean = mean(value, na.rm = TRUE), SD = sd(value, na.rm = TRUE))
-write.csv(enviro_means , "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_Enviro_means.csv", row.names = FALSE)
+write.csv(enviro_means , "~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/Table1_Enviro_means.csv", row.names = FALSE)
 
 # Paired t-test 
 # pivot wider 
@@ -303,7 +304,7 @@ test_results_list <- list(
 # Combine all results into one data frame
 all_enviro <- do.call(rbind, test_results_list)
 
-write.csv(all_enviro, "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_Enviro_t-test.csv", row.names = FALSE)
+write.csv(all_enviro, "~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/Table1_Enviro_t-test.csv", row.names = FALSE)
 
 # **Summary of environmental data**
 # Temperature: shallow is significantly higher by 0.02 deg C 
@@ -483,7 +484,7 @@ survival_arrange1 <- grid.arrange(
   )  
 
 #save graphs 
-ggsave("TL_TRANS_Surival_Arrange_new.jpg", plot = survival_arrange1 , path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 18, height = 5)
+ggsave("Fig3_Surival.jpg", plot = survival_arrange1 , path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 18, height = 5)
 
 # SURVIVAL STATS 
 
@@ -519,9 +520,9 @@ all_log_rank_results <- do.call(rbind, lapply(tests, function(test) {
 }))
 
 # Save 
-write.csv(all_log_rank_results, "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_survival_kaplan-meier.csv", row.names = FALSE)
+write.csv(all_log_rank_results, "~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/STATS_Survival_kaplan-meier.csv", row.names = FALSE)
 
-# FIG Sx. Parametric survival curves  ---------------------------------------------
+# Fig S2. Parametric survival curves  ---------------------------------------------
 
 # using the exponential shape, we assume that rate of survivorship is fixed over time 
 
@@ -624,11 +625,19 @@ para_survival_arrange <- grid.arrange(
 )  
 
 #save graphs
-ggsave("TL_TRANS_Surival_Arrange_parametric_new.jpg", plot = para_survival_arrange , path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 15, height = 6)
-
-#
+ggsave("FigS2_Surival_parametric.jpg", plot = para_survival_arrange , path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 15, height = 6)
 
 # Fig 3b. Growth rate -------------------------------------------------------------
+
+# make labels 
+facet_labels <- c(
+  "OFAV_S" = "OFAV Shallow", 
+  "OFAV_P" = "OFAV Deep",
+  "OFRA_P" = "OFRA Deep"
+)
+
+# Labels
+custom_group_labels <- c("OFAV_S" = "OFAV Shallow", "OFAV_P" = "OFAV Deep", "OFRA_P" = "OFRA Deep")
 
 # pull mean growth rates 
 mean_growth <- reaction_norms %>%
@@ -667,7 +676,7 @@ box_growth <- ggplot(raw, aes(x=final, y=CM2.year)) +
         axis.line.y = element_line(colour = "black")) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5)
   
-ggsave("TL_TRANS_growth_box.jpg", plot = box_growth, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 20, height = 15)
+ggsave("Fig3_Growth.jpg", plot = box_growth, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 20, height = 15)
 
 ### GROWTH RACTION NORM
 
@@ -712,9 +721,6 @@ buds_means$type <- factor(buds_means$type, levels = c("mean_bud", "mean_adult"))
 buds_means$group <- factor(buds_means$group, levels = c("OFAV_S", "OFAV_P", "OFRA_P")) 
 buds_means$final <- factor(buds_means$final, levels = c("5", "18")) 
 
-# Labels
-custom_group_labels <- c("OFAV_S" = "OFAV Shallow", "OFAV_P" = "OFAV Deep", "OFRA_P" = "OFRA Deep")
-
 bar_buds <- ggplot(buds_means, aes(x = final, y = Value, fill = home_away, alpha = type)) +
   # DATA with pattern
   geom_bar_pattern(stat = "identity", 
@@ -743,38 +749,12 @@ bar_buds <- ggplot(buds_means, aes(x = final, y = Value, fill = home_away, alpha
         strip.text = element_blank(),
         strip.background = element_blank(),
         plot.margin=unit(c(0,0,0,2),"cm"))
-       
 
 bar_buds
 
-ggsave("TL_TRANS_buds.jpg", plot = bar_buds, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 25, height = 20)
+ggsave("Fig3_Budding.jpg", plot = bar_buds, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 25, height = 20)
 
 # Fig 3. Fitness Arrange -----------------------------------------------
-
-### STACKED ARANGEMENT 
-
-fitness <- grid.arrange(
-  arrangeGrob(survival_arrange1, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(3, "lines")),
-  arrangeGrob(reaction_norm_growth, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(6, "lines")), 
-  arrangeGrob(bar_buds, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(2, "lines")),
-  nrow = 3,
-  bottom = grobTree(
-    textGrob("A                               OFAV Shallow                     OFAV Deep    OFRA Deep", x = 0.01, y = 245, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
-    textGrob("B            OFAV Shallow                    OFAV Deep                    OFRA Deep", x = 0.01, y = 160, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
-    textGrob("C", x = 0.01, y = 80, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
-    textGrob("*", x = 0.38, y = 210, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("*", x = 0.68, y = 210, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("*", x = 0.86, y = 210, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("*", x = 0.22, y = 135, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("*", x = 0.19, y = 71, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("bud", x = 0.22, y = 73, just = "left", gp = gpar(fontsize = 30)),
-    textGrob("*", x = 0.46, y = 71, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("bud, adult, all", x = 0.49, y = 73, just = "left", gp = gpar(fontsize = 30)),
-    textGrob("*", x = 0.8, y = 71, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
-    textGrob("bud, all", x = 0.83, y = 73, just = "left", gp = gpar(fontsize = 30))
-    ))
-
-#ggsave("TL_TRANS_fitness.jpg", plot = fitness, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 20, height = 25)
 
 ### GRID ARANGEMENT 
 
@@ -789,7 +769,7 @@ fit2 <- grid.arrange(
   nrow = 2, heights = c(0.5, 0.5) )
 
 fitness <- grid.arrange(
- fit1, fit2,
+  fit1, fit2,
   nrow = 1, 
   bottom = grobTree(
     textGrob("                           OFAV Shallow           OFAV Deep   OFRA Deep                OFAV Shallow           OFAV Deep            OFRA Deep", x = 0.01, y = 145, just = "left", gp = gpar(fontsize = 36, fontface = "bold")),
@@ -810,7 +790,8 @@ fitness <- grid.arrange(
     textGrob("bud, all", x = 0.92, y = 65, just = "left", gp = gpar(fontsize = 28))
   ))
 
-ggsave("TL_TRANS_fitness.jpg", plot = fitness, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 30, height = 15)
+ggsave("Fig3_Arranged.jpg", plot = fitness, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 30, height = 15)
+
 
 # Fig 4. Morph Reaction Norms --------------------------------------------------------
 
@@ -818,12 +799,6 @@ ggsave("TL_TRANS_fitness.jpg", plot = fitness, path = '~/Desktop/TL_Trans_Manusc
 reaction_norms$group <- factor(reaction_norms$group, levels = c("OFAV_S", "OFAV_P", "OFRA_P")) 
 reaction_norms$home_away <- factor(reaction_norms$home_away, levels = c("Home", "Away"))
 reaction_norms$final <- factor(reaction_norms$final, levels = c("5", "18")) 
-
-facet_labels <- c(
-  "OFAV_S" = "OFAV Shallow", 
-  "OFAV_P" = "OFAV Deep",
-  "OFRA_P" = "OFRA Deep"
-)
 
 morph_norms <- reaction_norms %>%
   filter(metric %in% c("A"))
@@ -842,7 +817,7 @@ reaction_norm_plot <- ggplot(morph_norms, aes(x=final, y=mean)) +
         strip.background = element_blank(), strip.border = element_blank(), strip.text = element_text(face = "bold"), 
         axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
-        ) + 
+  ) + 
   scale_y_continuous(labels = scales::number_format(accuracy = 0.01)) + 
   labs(y = "Corallite Area (cm²)", color = "Treatment")
 reaction_norm_plot
@@ -867,13 +842,12 @@ reaction_norm_plot2 <- ggplot(morph_norms2, aes(x=final, y=mean)) +
   labs(x = "Depth (m)", y = "Calice Area (cm²)")
 reaction_norm_plot2
 
-
 morph2 <- grid.arrange(reaction_norm_plot, reaction_norm_plot2, nrow=2,
                        bottom = grobTree(
                          textGrob("*", x = 0.83, y = 65, just = "left", gp = gpar(fontsize = 50, fontface = "bold"))
                        ))
 
-ggsave("TL_TRANS_reaction_norms_morph.jpg", plot = morph2, path = '~/Desktop/TL_TRANS_Manuscript/Graphs/', width = 9, height = 18)
+ggsave("Fig4_Morphology.jpg", plot = morph2, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 9, height = 18)
 
 # Fig 5. Reaction Norms phys -----------------------------------------------------
 
@@ -1080,10 +1054,9 @@ norms_tissue <- grid.arrange(reaction_norm_biomass, reaction_norm_prot, nrow=2,
                     
 norms_phys <- grid.arrange(norms_photophys, norms_photosynth, norms_tissue, nrow=1)
 
-ggsave("TL_TRANS_reaction_norms_phys.jpg", plot = norms_phys, path = '~/Desktop/TL_TRANS_Manuscript/Graphs/', width = 25, height = 18)
+ggsave("Fig5_Physiology.jpg", plot = norms_phys, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 25, height = 18)
 
-
-# Fig Sx. Boxplots --------------------------------------------------------
+# Fig S3. Boxplots --------------------------------------------------------
 
 # pivot longer 
 full_phys_long <- full_phys %>% pivot_longer(cols = c("A", "CA", "di", "Cdi", "D2", "Dsmall", "Dadult", "chla.ug.cm2", "sym.cm2", "prot_mg.cm2", "Host_AFDW_mg.cm2", "Sym_AFDW_mg.cm2", "CM2.year", "Qm", "Fv.Fm"), names_to = "metric", values_to = "value")
@@ -1200,394 +1173,10 @@ phys_arrange <- grid.arrange(
   #bottom = text_grob("Days Since Transplantation", size = 30, face = "bold")
 )  
 
-ggsave("TL_TRANS_FigSx_boxplots.jpg", plot = phys_arrange, path = '~/Desktop/TL_TRANS_Manuscript/Graphs/', width = 10, height =13)
+ggsave("FigS3_Boxplots.jpg", plot = phys_arrange, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 10, height =13)
 
 
-# X Physiology graphs ---------------------------------------------------------------------
-
-# Graph Qm
-Qm <- ggplot(PAM, aes(x=factor(full_treatment, level=x_order), y=Qm, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.6, 0.6, 0.6)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(y= bquote("Qm"), x = "", fill='Origin') 
-
-Qm
-pairwise.wilcox.test(PAM$Qm, PAM$full_treatment, p.adjust.method="none")
-
-# Graph Fv/Fm
-fvfm <- ggplot(PAM, aes(x=factor(full_treatment, level=x_order), y=Fv.Fm, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.75, 0.75, 0.75)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(y= bquote("Fv/Fm"), x = bquote(""), fill='Origin') + 
-  scale_x_discrete(labels=c('Shallow', 'Deep', 'Shallow', 'Deep', 'Shallow','Deep')) 
-
-fvfm
-pairwise.wilcox.test(PAM$Fv.Fm, PAM$full_treatment, p.adjust.method="none")
-
-# Chlorophyll a 
-chla <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=chla.ug.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(15, 15, 15)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        #axis.text.x = element_blank(), 
-        #axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "Depth Treatment", y = bquote("Chlorophyll α (μg/" ~ cm^2~ ")"), fill='Origin') + 
-  scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-chla
-pairwise.wilcox.test(raw$chla.ug.cm2, raw$full_treatment, p.adjust.method="none")
-
-# Symbiont Density 
-sym <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=sym.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(4000000, 4000000, 4000000)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Symbiont Density (cells/" ~ cm^2~ ")"), fill='Origin')
-sym
-pairwise.wilcox.test(raw$sym.cm2, raw$full_treatment, p.adjust.method="none")
-
-# Protein 
-protein <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=prot_mg.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(2.3, 2.3, 2.3)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Protein (mg/" ~ cm^2~ ")"), fill='Origin') 
-#scale_x_discrete(labels=c('Shallow', 'Deep', 'Shallow', 'Deep', 'Shallow', 'Deep')) 
-protein
-pairwise.wilcox.test(raw$prot_mg.cm2, raw$full_treatment, p.adjust.method="none")
-
-# Symbiont Biomass 
-AFDW_sym <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Sym_AFDW_mg.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(40, 40, 40)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        #axis.text.x = element_blank(), 
-        #axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "Depth Treatment", y = bquote("Symbiont Biomass (mg/" ~ cm^2~ ")"), fill='Origin') + 
-  scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-AFDW_sym
-pairwise.wilcox.test(raw$Sym_AFDW_mg.cm2, raw$full_treatment, p.adjust.method="none")
-
-# Host Biomass 
-AFDW_host <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Host_AFDW_mg.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(16, 16, 16)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Host Biomass (mg/"~cm^2~")"), fill='Origin') 
-
-AFDW_host
-pairwise.wilcox.test(raw$Host_AFDW_mg.cm2, raw$full_treatment, p.adjust.method="none")
-
-# X Physiology arrange ------------------------------------------------------
-
-blank <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Host_AFDW_mg.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  #geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position=c(0.35, 0.3), 
-        legend.background = element_rect(fill = "white", color = NA), # White background
-        legend.margin = margin(200, 150, 400,150),
-        text = element_text(size=40), 
-        axis.text.y = element_blank(), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        legend.key.size = unit(3, "cm"),       # Increase overall size of the legend keys
-        plot.margin=unit(c(1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels = c(expression(italic("O. faveolata ") * "Shallow"), 
-                                                                            expression(italic("O. faveolata ") * " Deep"),
-                                                                            expression(italic("O. franksi ") * " Deep")) ) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(y= bquote(""), x = "", fill='Original Population')
-
-phys_col1 <- plot_grid(protein, AFDW_host, 
-                       Qm, fvfm,
-                       sym, AFDW_sym, 
-                       chla, blank,    
-                       ncol = 2, align = "vh", 
-                       labels = c("A","B", "C", "D", "E", "F",  "G",""),  label_size = 40, label_x = 0.04, label_y = 0.99)
-
-#save 2x6 graphs 
-ggsave("TL_TRANS_arrange_phys.jpg", plot = phys_col1, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 18, height = 40)
-
-# X Morphology --------------------------------------------------------------
-
-# growth 
-growth <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=CM2.year, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(6,6,6)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(1.1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Growth ("~cm^2~"/year)"), fill='Origin')
-#scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-growth
-pairwise.wilcox.test(raw$CM2.year, raw$full_treatment, p.adjust.method="none")
-
-# Corallite Density  
-density <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=D2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(8,8,8)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(1.1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Corallite Density (calices/"~cm^2~")"), fill='Origin') 
-#scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-density 
-pairwise.wilcox.test(raw$D2, raw$full_treatment, p.adjust.method="none")
-
-# Corallite Density  
-density_small <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Dsmall, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(3,3,3)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        #axis.text.x = element_blank(), 
-        #axis.ticks.x= element_blank(),
-        plot.margin=unit(c(1.1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "Depth Treatment", y = bquote("Bud Density (calices/"~cm^2~")"), fill='Origin') +
-  scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-density_small 
-pairwise.wilcox.test(raw$Dsmall, raw$full_treatment, p.adjust.method="none")
-
-# Calice Area 
-area <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=A, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.21, 0.21, 0.21)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Coralite Area ("~cm^2~")"), fill='Origin') 
-#scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-area
-pairwise.wilcox.test(raw$A, raw$full_treatment, p.adjust.method="none")
-
-# Columella area 
-Carea <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=CA, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.09, 0.09, 0.09)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        #axis.text.x = element_blank(), 
-        #axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "Depth Treatment", y = bquote("Calice Area ("~cm^2~")"), fill='Origin') + 
-  scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-
-Carea
-pairwise.wilcox.test(raw$CA, raw$full_treatment, p.adjust.method="none")
-
-# Calice diameter 
-diameter <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=di, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.58, 0.58, 0.58)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "", y = bquote("Coralite Diameter (cm)"), fill='Origin') 
-#scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-diameter
-pairwise.wilcox.test(raw$di, raw$full_treatment, p.adjust.method="none") 
-
-# Columnella diameter
-Cdiameter <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Cdi, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  stat_compare_means(comparisons = treatment_comparisons, method = "wilcox.test", size = 8, label.y = c(0.34, 0.34, 0.34)) + 
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position="none", 
-        text = element_text(size=40), 
-        axis.text.y = element_text(size=30), 
-        #axis.text.x = element_blank(), 
-        #axis.ticks.x= element_blank(),
-        plot.margin=unit(c(0,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels=c('OFAV Shallow', 'OFAV Deep', 'OFRA Deep')) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(x = "Depth Treatment", y = bquote("Calice Diameter (cm)"), fill='Origin') + 
-  scale_x_discrete(labels=c('S', 'D', 'S', 'D', 'S', 'D')) 
-Cdiameter
-pairwise.wilcox.test(raw$Cdi, raw$full_treatment, p.adjust.method="none")
-
-# X morphology arrange  -----------------------------------------------------
-
-blank2 <- ggplot(raw, aes(x=factor(full_treatment, level=x_order), y=Host_AFDW_mg.cm2, fill=factor(group, level=measurement_order))) +
-  # DATA 
-  geom_boxplot(alpha=0.6, outlier.size=0) +
-  #geom_point(aes(color=factor(group, level=measurement_order)), position = pj, size=2, show.legend = FALSE)+
-  # AESTHETICS 
-  theme_classic() +
-  theme(legend.position=c(0.3, 0.6), 
-        legend.background = element_rect(fill = "white", color = NA), # White background
-        legend.margin = margin(30, 0, 200,80),
-        text = element_text(size=40), 
-        axis.text.y = element_blank(), 
-        axis.text.x = element_blank(), 
-        axis.ticks.x= element_blank(),
-        legend.key.size = unit(3, "cm"),       # Increase overall size of the legend keys
-        plot.margin=unit(c(1,0,0,1),"cm")
-  ) + 
-  scale_fill_manual(values = c("#EBB134", "#ED6B5F", "#6060A8"), labels = c(expression(italic("O. faveolata ") * "Shallow"), 
-                                                                            expression(italic("O. faveolata ") * " Deep"),
-                                                                            expression(italic("O. franksi ") * " Deep")) ) + 
-  scale_color_manual(values = c("#EBB134", "#ED6B5F", "#6060A8")) + 
-  labs(y= bquote(""), x = "", fill='Original Population')
-
-phys_col1 <- plot_grid(protein, blank, sym, chla, Qm, fvfm, AFDW_sym, AFDW_host, 
-                       ncol = 2, align = "vh", 
-                       labels = c("A","", "B", "C", "D", "E", "F",  "G"),  label_size = 35, label_x = 0.18, label_y = 0.99)
-
-
-morph_col1 <- plot_grid(growth, density, density_small, area, diameter, blank2, Carea, Cdiameter, blank2, 
-                        ncol = 3, align = "vh", 
-                        labels = c("A", "B", "C", "D", "E", "", "G", "H", ""),  label_size = 40, label_x = 0.04, label_y = 0.99)
-
-#save 2x6 graphs 
-ggsave("TL_TRANS_arrange_morph.jpg", plot = morph_col1, path = '~/Desktop/TL_Trans_Manuscript/Graphs/', width = 25, height = 30)
-#
-
-# X Phys & morph stats ------------------------------------------------------
+# STATS Phys & morph ------------------------------------------------------
 
 # prep specific ones 
 raw_OFAVP <- raw %>% filter(full_treatment %in% c("OFAV_PP", "OFAV_PS"))
@@ -1660,7 +1249,7 @@ wilcox_pam_5 <- merge(wilcox_pam_4, results_pam_species , by ="metric", all = TR
 combined_dataset <- bind_rows(wilcox_5, wilcox_pam_5)
 
 # write to csv 
-write.csv(combined_dataset, "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_phys_wilcox.csv", row.names = FALSE)
+write.csv(combined_dataset, "~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/STATS_phys_wilcox.csv", row.names = FALSE)
 
 ## Means
 master_long <- raw %>%
@@ -1692,225 +1281,6 @@ pam_means <- master_long_pam %>%
 
 # merge 
 physiology_means <- bind_rows(phys_means, pam_means)
-write.csv(physiology_means, "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_phys_means.csv", row.names = FALSE)
+write.csv(physiology_means, "~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/STATS_phys_means.csv", row.names = FALSE)
 
-## Medians
-phys_medians <- master_long %>%
-  group_by(metric, full_treatment) %>%
-  summarise(median = signif(median(value),3), count = n()) %>%
-  pivot_wider(names_from = full_treatment, values_from = c(median, count)) %>%
-  select(metric, 
-         median_OFAV_PP, count_OFAV_PP, 
-         median_OFAV_PS,  count_OFAV_PS, 
-         median_OFAV_SP, count_OFAV_SP,
-         median_OFAV_SS, count_OFAV_SS,
-         median_OFRA_PP,  count_OFRA_PP,
-         median_OFRA_PS,count_OFRA_PS)
-
-pam_medians <- master_long_pam %>%
-  group_by(metric, full_treatment) %>%
-  summarise(median = signif(mean(value),3), count = n()) %>%
-  pivot_wider(names_from = full_treatment, values_from = c(median, count)) %>%
-  select(metric, 
-         median_OFAV_PP, count_OFAV_PP, 
-         median_OFAV_PS,  count_OFAV_PS, 
-         median_OFAV_SP, count_OFAV_SP,
-         median_OFAV_SS, count_OFAV_SS,
-         median_OFRA_PP,  count_OFRA_PP,
-         median_OFRA_PS,count_OFRA_PS)
-
-# merge 
-physiology_medians <- bind_rows(phys_medians, pam_medians)
-write.csv(physiology_medians, "~/Desktop/TL_TRANS_Manuscript/STATS/TL_TRANS_STATS_phys_medians.csv", row.names = FALSE)
-
-# calculate PImds 
-# https://besjournals.onlinelibrary.wiley.com/doi/10.1111/j.1365-2745.2006.01176.x
-# (Maximum median- minimum median)/ maximum median
-
-Pmedians <- physiology_medians %>% select(metric, median_OFAV_PP, median_OFAV_PS, median_OFAV_SP, median_OFAV_SS, median_OFRA_PP, median_OFRA_PS)
-PImd <- Pmedians %>%
-  mutate(OFAV_P_max = max(median_OFAV_PP, median_OFAV_PS)) %>%
-  mutate(OFAV_P_min = min(median_OFAV_PP, median_OFAV_PS)) %>%
-  mutate(OFAV_S_max = max(median_OFAV_SP, median_OFAV_SS)) %>%
-  mutate(OFAV_S_min = min(median_OFAV_SP, median_OFAV_SS)) %>%
-  mutate(OFRA_P_max = max(median_OFRA_PP, median_OFRA_PS)) %>%
-  mutate(OFRA_P_min = min(median_OFRA_PP, median_OFRA_PS)) %>%
-  mutate(PI_OFAV_P = (OFAV_P_max - OFAV_P_min)/OFAV_P_max) %>%
-  mutate(PI_OFAV_S = (OFAV_S_max - OFAV_S_min)/OFAV_S_max) %>%
-  mutate(PI_OFRA_P = (OFRA_P_max - OFRA_P_min)/OFRA_P_max)
-
-PImd2 <- PImd %>%
-  select(metric, PI_OFAV_P, PI_OFAV_S,PI_OFRA_P)
-
-
-PImd2$Rank <- apply(PImd2[, -1], 1, function(row) {
-  values <- sort(row, decreasing = TRUE)  # Sort the row in descending order
-  labels <- c("OFAV_P", "OFAV_S", "OFRA_P") 
-  
-  # Create a string representing the order
-  order_str <- paste(labels[order(row, decreasing = TRUE)], collapse = ">")
-  return(order_str)
-})
-
-idk <- PImd2 %>%
-  pivot_longer(cols = c(PI_OFAV_P, PI_OFAV_S, PI_OFRA_P), names_to = "group", values_to = "PI") %>%
-  group_by(group) %>%
-  summarise(mean = mean(PI), 
-            sum = sum(PI))
-
-pivot_longer(cols = c("A", "CA", "di", "Cdi", "D2", "Dsmall", "chla.ug.cm2", "sym.cm2", "prot_mg.cm2", "Host_AFDW_mg.cm2", "Sym_AFDW_mg.cm2", "CM2.year", "Qm", "Fv.Fm"), names_to = "metric", values_to = "value") %>%
-  
-  
-# X PCAs  -------------------------------------------------------------------
-
-raw_complete <- raw %>% na.omit()
-pca1 <- prcomp(raw_complete[,c(7:13, 15:20)],center=TRUE,scale.=TRUE)
-pca1 <- prcomp(raw_complete[,c(13, 16:19)],center=TRUE,scale.=TRUE) # phys only no qm fvfm
-pca1 <- prcomp(raw_complete[,c(7:12, 20)],center=TRUE,scale.=TRUE) # morph only 
-autoplot(pca1, data=raw_complete, color = 'group', frame.type = 't', loadings=TRUE, loadings.label=TRUE) 
-
-autoplot(
-  pca1, 
-  data = raw_complete, 
-  colour = 'group',         # Color aesthetic for points
-  frame.type = 't',         # Type of frame (e.g., ellipse)
-  loadings = TRUE,          # Show PCA loadings
-  loadings.label = TRUE     # Label the loadings
-) +
-  scale_color_manual(       # Custom colors for points
-    values = c("OFAV_P" = "blue", "OFAV_S" = "red", "OFRA_P" = "green")
-  ) +
-  scale_fill_manual(        # Custom colors for ellipses
-    values = c("OFAV_P" = "blue", "OFAV_S" = "red", "OFRA_P" = "green")
-  )
-
-# X Reaction norms ----------------------------------------------------------
-
-# combine RAW and PAM values 
-PAM <- PAM %>% mutate(colony_id = as.character(colony_id))
-full_phys <- full_join(raw, PAM)
-full_phys <- full_phys %>%
-  select(species, group, full_treatment, final, home_away, CM2.year, D2, Dsmall,Dadult, A, CA, di, Cdi, Qm, Fv.Fm, prot_mg.cm2, sym.cm2, Sym_AFDW_mg.cm2, Host_AFDW_mg.cm2, chla.ug.cm2)
-
-phys_longer <- full_phys %>%
-  pivot_longer(cols = c("A", "CA", "di", "Cdi", "D2", "Dsmall", "Dadult", "chla.ug.cm2", "sym.cm2", "prot_mg.cm2", "Host_AFDW_mg.cm2", "Sym_AFDW_mg.cm2", "CM2.year", "Qm", "Fv.Fm"), names_to = "metric", values_to = "value") %>%
-  filter(value != "NA") %>%
-  select(group, final, home_away, metric, value)
-
-reaction_norms <- phys_longer %>%
-  group_by(group, final, metric, home_away)%>%
-  summarise(mean = mean(value),
-            sd = sd(value))
-
-# add survival in here 
-n_survival2 <- n_survival %>% 
-  mutate(metric = "percent_survival") %>%
-  select(final, group, metric, mean) 
-
-reaction_norms <-  bind_rows(reaction_norms, n_survival2)
-
-reaction_norms$metric <- factor(
-  reaction_norms$metric,
-  levels = c("percent_survival", "CM2.year", "D2", "Dsmall",
-             "A", "di", "CA", "Cdi",
-             "Fv.Fm", "Qm", "prot_mg.cm2", "Host_AFDW_mg.cm2",
-             "chla.ug.cm2", "sym.cm2", "Sym_AFDW_mg.cm2"
-  )) # Replace with desired order
-
-reaction_norms$final <- factor(
-  reaction_norms$final,
-  levels = c("5", "18" )) # Replace with desired order
-
-facet_labels <- c(
-  "D2" = "Corallite Density (calices/cm²)", 
-  "Dsmall" = "Bud Density (calices/cm²)",
-  "CA" = "Calice Area (cm²)", 
-  "Cdi" = "Calice Diameter (cm)",
-  "CM2.year" = "Growth (cm²/year)",  
-  "A" = "Corallite Area (cm²)", 
-  "di" = "Corallite Diameter (cm)", 
-  "percent_survival" = "Percent Survival (%)", 
-  "chla.ug.cm2" = "Chlorophyll α (μg/cm²)", 
-  "Fv.Fm" = "Fv.Fm", 
-  "Qm" = "Qm", 
-  "sym.cm2" = "Symbiont Density  (cells/cm²)",
-  "prot_mg.cm2" = "Soluble Protein (mg/cm²)", 
-  "Host_AFDW_mg.cm2" = "Host Biomass (mg/cm²)",
-  "Sym_AFDW_mg.cm2" = "Symbiont Biomass (mg/cm²)"   
-)
-
-reaction_norm_plot <- ggplot(reaction_norms, aes(x=final, y=mean, color=group)) +
-  geom_line(aes(group = group), size = 3) + 
-  geom_point(size = 6) + 
-  facet_wrap(~metric, scales="free", ncol = 4, labeller = labeller(metric = facet_labels), strip.position = "left") + 
-  theme_bw()+
-  theme(strip.placement = "outside", 
-        text = element_text(size=30),
-        strip.background = element_blank(), 
-        strip.border = element_blank(), 
-        strip.text = element_text(face = "bold"), 
-        axis.title = element_text(face = "bold"),
-        legend.title = element_text(face = "bold"),
-        legend.position = c(0.88, 0.08) ) + 
-  scale_color_manual(values = c("#ED6B5F","#EBB134", "#6060A8") ,labels = c(expression(italic("O. faveolata ") * " Deep"), 
-                                                                            expression(italic("O. faveolata ") * "Shallow"), 
-                                                                            expression(italic("O. franksi ") * " Deep")) ) + 
-  labs(x = "Treatment", y = "", color = "Original Population")
-reaction_norm_plot
-
-ggsave("TL_TRANS_reaction_norms.jpg", plot = reaction_norm_plot, path = '~/Desktop/TL_TRANS_Manuscript/Graphs/', width = 20, height = 26)
-
-### MORPH NORMS
-
-# get values for means 
-x_cal_a <- mean(raw$CA, na.rm = TRUE)
-x_cal_di <- mean(raw$Cdi, na.rm = TRUE)
-x_cor_a <- mean(raw$A, na.rm = TRUE)
-x_cor_di <- mean(raw$di, na.rm = TRUE)
-
-# standardize 
-morph_reaction_norms <- reaction_norms %>%
-  filter(metric %in% c("di", "Cdi", "A", "CA")) %>%
-  mutate(std_value = case_when(
-    metric == "di"  ~ mean - x_cor_di,
-    metric == "Cdi" ~ mean - x_cal_di,
-    metric == "A"   ~ mean - x_cor_a,
-    TRUE            ~ mean - x_cal_a  # This acts as the "else" case
-  ))
-
-ggplot(morph_reaction_norms, aes(x=final, y = std_value, color = home_away)) +
-  geom_point() + 
-  facet_wrap( ~ metric + group, nrow=4)
-#add error bars 
-
-
-min_val <- min(raw$A, na.rm = TRUE)
-max_val <- max(raw$A, na.rm = TRUE)
-raw$CA_norm <- (raw$A - min_val)/(max_val - min_val)
-
-norms <- raw %>%
-  group_by(group, home_away) %>%
-  summarise(mean = mean(CA_norm, na.rm = TRUE),
-            sd = sd(CA_norm, na.rm = TRUE))
-norms <- norms %>%
-  pivot_wider(names_from = home_away, values_from = c(mean, sd)) %>%
-  mutate(mean_Away = mean_Away - mean_Home) 
-
-#%>%
-mutate(mean_Home = 0) 
-
-norms <- norms %>% 
-  pivot_longer(-group, 
-               names_to = c(".value", "home_away"), 
-               names_sep="_" )
-
-
-norms$home_away <- factor(norms$home_away, levels = c("Home", "Away"))
-
-ggplot(norms, aes(x=home_away, y=mean, color=group, group=group))+ 
-  geom_point(size=3) + 
-  geom_line(size=2) +
-  facet_wrap(~group) + 
-  geom_errorbar(aes(ymin = mean - sd, ymax = mean + sd), width = 0.05) + 
-  theme_classic2()
 
