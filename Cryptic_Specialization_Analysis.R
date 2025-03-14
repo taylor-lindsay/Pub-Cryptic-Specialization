@@ -156,7 +156,7 @@ enviro_merged <- merge(light, temp_DO, all=TRUE) %>%
   select(datetime, date, time, depth, LightRaw, DO_mg.L, Temp_C)
 
 # save merged & cleaned data if needed 
-# write_csv(enviro_merged, '~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/Enviro_data.csv')
+#write_csv(enviro_merged, '~/Desktop/GITHUB/Pub-Cryptic-Specialization/STATS/Enviro_data.csv')
 
 # include only times 1hr before and after sunrise (6am) and set (7pm)
 
@@ -695,15 +695,16 @@ reaction_norm_growth <- ggplot(mean_growth, aes(x=final, y=mean)) +
   theme(text = element_text(size=30),
         strip.background = element_blank(), strip.border = element_blank(), strip.text = element_blank(), 
         legend.position = "none",  # Remove legend
-        axis.title.x =  element_blank(),
-        axis.text.x = element_blank(),
+       # axis.title.x =  element_blank(),
+        #axis.text.x = element_blank(),
         axis.title.y = element_text(face = "bold"),
-        axis.ticks.x = element_blank(),
+       axis.title.x = element_text(face = "bold"),
+        #axis.ticks.x = element_blank(),
         plot.margin=unit(c(0,0,0,2),"cm")
   ) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "black", size = 0.5) + 
  # scale_y_continuous(labels = scales::number_format(accuracy = 0.)) + 
-  labs(x = "Depth (m)", y = "Growth (cm²/year)")
+  labs(y = "Growth (cm²/year)", x = "Transplant Depth (M)")
 reaction_norm_growth
 
 # Fig 3d. Calice types ------------------------------------------------------------
@@ -790,8 +791,44 @@ fitness <- grid.arrange(
     textGrob("bud, all", x = 0.92, y = 65, just = "left", gp = gpar(fontsize = 28))
   ))
 
-ggsave("Fig3_Arranged.jpg", plot = fitness, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 30, height = 15)
 
+### GRID ARANGEMENT 2
+
+fit1 <- grid.arrange( 
+  arrangeGrob(survival_arrange1, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(4, "lines")), 
+  arrangeGrob(reaction_norm_growth, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(5, "lines")), 
+  nrow = 2) #, heights = c(0.56, 0.44) )
+
+fit2 <- grid.arrange(
+  arrangeGrob(reaction_norm_growth, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(3, "lines")), 
+  arrangeGrob(bar_buds, top = textGrob("", gp = gpar(fontsize = 10)), padding = unit(5, "lines")),
+  nrow = 2, heights = c(0.5, 0.5) )
+
+fitness <- grid.arrange(
+  fit1, fit2,
+  nrow = 1, 
+  bottom = grobTree(
+    textGrob("A", x = 0.01, y = 173, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
+    textGrob("                           OFAV Shallow           OFAV Deep   OFRA Deep", x = 0.01, y = 173, just = "left", gp = gpar(fontsize = 36, fontface = "bold")),
+    textGrob("C", x = 0.01, y = 84, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
+    textGrob("               OFAV Shallow        OFAV Deep             OFRA Deep                     OFAV Shallow          OFAV Deep               OFRA Deep", x = 0.01, y = 84, just = "left", gp = gpar(fontsize = 36, fontface = "bold")),
+    textGrob("D", x = 0.51, y = 84, just = "left", gp = gpar(fontsize = 40, fontface = "bold")),
+    
+    textGrob("*", x = 0.19, y = 130, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    textGrob("*", x = 0.34, y = 130, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    textGrob("*", x = 0.43, y = 130, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    
+    textGrob("*", x = 0.125, y = 40, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    
+    textGrob("*", x = 0.6, y = 76, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    textGrob("bud", x = 0.62, y = 78, just = "left", gp = gpar(fontsize = 28)),
+    textGrob("*", x = 0.72, y = 76, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    textGrob("bud, adult, all", x = 0.74, y = 78, just = "left", gp = gpar(fontsize = 28)),
+    textGrob("*", x = 0.9, y = 76, just = "left", gp = gpar(fontsize = 80, fontface = "bold")),
+    textGrob("bud, all", x = 0.92, y = 78, just = "left", gp = gpar(fontsize = 28))
+  ))
+
+ggsave("Fig3_Arranged.jpg", plot = fitness, path = '~/Desktop/GITHUB/Pub-Cryptic-Specialization/GRAPHS/', width = 30, height = 18)
 
 # Fig 4. Morph Reaction Norms --------------------------------------------------------
 
